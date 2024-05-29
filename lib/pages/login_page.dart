@@ -3,26 +3,23 @@ import 'package:ck/components/app_elevated_button.dart';
 import 'package:ck/components/app_text_field.dart';
 import 'package:ck/models/user_model.dart';
 import 'package:ck/pages/forgot_password_page.dart';
-import 'package:ck/pages/home_page.dart';
+import 'package:ck/pages/menu_components_page.dart';
 import 'package:ck/pages/register_page.dart';
 import 'package:ck/services/local/shared_prefs.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.username = ""});
 
+  final String? username;
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-int d = 0;
 Color _suffixIconColor = Colors.grey;
 bool _isPassword = true;
+Icon _suffixIcon = const Icon(Icons.remove_red_eye);
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
@@ -35,6 +32,9 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
     _getUserList();
+    if (widget.username != null) {
+      usernameController.text = widget.username!;
+    }
   }
 
   void _getUserList() {
@@ -54,10 +54,16 @@ class _LoginPageState extends State<LoginPage> {
     if ((user.username ?? "").isNotEmpty) {
       await prefs.setIsLogin(true);
       await prefs.setLoginUsername(username);
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => HomePage(username: user.username ?? ''),
+      //   ),
+      // );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(username: user.username ?? ''),
+          builder: (context) => const MenuComponentsPage(),
         ),
       );
     } else {
@@ -105,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding: EdgeInsets.only(top: 70.0),
                   child: Text(
                     "Welcome Back",
-                    style: TextStyle(color: Colors.red, fontSize: 25.0),
+                    style: TextStyle(color: Colors.blue, fontSize: 25.0),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -127,20 +133,15 @@ class _LoginPageState extends State<LoginPage> {
                   controller: passwordController,
                   hinText: "Password",
                   isPassword: _isPassword,
-                  suffixIcon: const Icon(Icons.remove_red_eye),
+                  suffixIcon: _suffixIcon,
                   suffixIconColor: _suffixIconColor,
                   suffixIconPressed: () {
-                    setState(() {
-                      d++;
-                      if (d % 2 != 0) {
-                        _isPassword = !_isPassword;
-
-                        _suffixIconColor = Colors.green;
-                      } else {
-                        _isPassword = !_isPassword;
-                        _suffixIconColor = Colors.grey;
-                      }
-                    });
+                    _isPassword = !_isPassword;
+                    _suffixIcon = _isPassword
+                        ? const Icon(Icons.remove_red_eye)
+                        : const Icon(Icons.visibility_off);
+                    _suffixIconColor = _isPassword ? Colors.grey : Colors.blue;
+                    setState(() {});
                   },
                   textInputAction: TextInputAction.done,
                 ),
@@ -154,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                           builder: (context) => const ForgotPasswordPage())),
                   child: const Text(
                     "Forgot Password?",
-                    style: TextStyle(color: Colors.red, fontSize: 16.0),
+                    style: TextStyle(color: Colors.blue, fontSize: 16.0),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -177,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                         TextSpan(
                             text: "Sign up",
                             style: const TextStyle(
-                                color: Colors.red, fontSize: 16.0),
+                                color: Colors.blue, fontSize: 16.0),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => Navigator.push(
                                   context,

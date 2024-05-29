@@ -15,10 +15,12 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
           onTap: onPressed,
           child: const Icon(
             Icons.input,
+            color: Colors.white,
           ),
         ),
         title: const Text(
           "Shop quần áo",
+          style: TextStyle(color: Colors.white),
         ),
         actions: [
           GestureDetector(
@@ -26,7 +28,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 MaterialPageRoute(builder: (context) => const ContactPage())),
             child: const Padding(
               padding: EdgeInsets.only(right: 8.0),
-              child: Text("Liên hệ"),
+              child: Text("Liên hệ", style: TextStyle(color: Colors.white)),
             ),
           )
         ],

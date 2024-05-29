@@ -3,9 +3,7 @@ import 'package:ck/services/local/shared_prefs.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.username});
-
-  final String? username;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -13,6 +11,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   SharedPrefs prefs = SharedPrefs();
+  String? _username;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    _username = await prefs.getLoginUsername();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +32,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Text(
-              "Welcome ${widget.username}",
+              "Welcome ${_username}",
               style: const TextStyle(color: Colors.red, fontSize: 30.0),
             ),
             ElevatedButton(

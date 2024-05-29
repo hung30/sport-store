@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:ck/pages/home_page.dart';
 import 'package:ck/pages/login_page.dart';
+import 'package:ck/pages/menu_components_page.dart';
 import 'package:ck/pages/onboarding_screen.dart';
 import 'package:ck/services/local/shared_prefs.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,10 @@ class _SplashState extends State<Splash> {
           prefs.getLoginUsername().then((username) {
             if (username != null) {
               Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage(username: username)),
-              );
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MenuComponentsPage(),
+                  ));
             } else {
               Navigator.pushReplacement(
                 context,
@@ -42,31 +42,29 @@ class _SplashState extends State<Splash> {
                 builder: (context) => OnboardingScreen(
                       pages: [
                         OnboardingPageModel(
-                          title: 'Fast, Fluid and Secure',
-                          description:
-                              'Enjoy the best of the world in the palm of your hands.',
-                          image: 'assets/onboardingImages/image0.png',
+                          title: 'PELE',
+                          description: '“Mọi thứ đều là thực hành.”',
+                          image: 'assets/onboardingImages/pele.png',
                           bgColor: Colors.indigo,
                         ),
                         OnboardingPageModel(
-                          title: 'Connect with your friends.',
-                          description:
-                              'Connect with your friends anytime anywhere.',
-                          image: 'assets/onboardingImages/image1.png',
+                          title: 'CRISTIANO RONALDO',
+                          description: '“Có lẽ họ ghét tôi vì tôi quá giỏi.”',
+                          image: 'assets/onboardingImages/ronaldo.png',
                           bgColor: const Color(0xff1eb090),
                         ),
                         OnboardingPageModel(
-                          title: 'Bookmark your favourites',
+                          title: 'LIONEL MESSI',
                           description:
-                              'Bookmark your favourite quotes to read at a leisure time.',
-                          image: 'assets/onboardingImages/image2.png',
+                              '“Có nhiều điều quan trọng trong cuộc sống hơn việc thắng hay thua trong một trò chơi.”',
+                          image: 'assets/onboardingImages/messi.png',
                           bgColor: const Color(0xfffeae4f),
                         ),
                         OnboardingPageModel(
-                          title: 'Follow creators',
+                          title: 'RONALDINHO',
                           description:
-                              'Follow your favourite creators to stay in the loop.',
-                          image: 'assets/onboardingImages/image3.png',
+                              '“Nó không chỉ là về tiền bạc, nó là về những gì bạn đạt được trên sân cỏ.”',
+                          image: 'assets/onboardingImages/ronaldinho.png',
                           bgColor: Colors.purple,
                         ),
                       ],
@@ -80,11 +78,12 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: Color(0xFF38B6FF),
       body: Center(
-        child: Text(
-          "Hello world",
-          style: TextStyle(color: Colors.black, fontSize: 30),
+        child: Image(
+          image: AssetImage('assets/splash/logo.png'),
+          width: 400,
+          height: 400,
         ),
       ),
     );

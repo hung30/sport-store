@@ -11,6 +11,8 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.suffixIconColor = Colors.grey,
     this.suffixIconPressed,
+    this.borderColor = Colors.grey,
+    this.borderWidth = 0.0,
   });
 
   final TextEditingController? controller;
@@ -21,6 +23,8 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final Color? suffixIconColor;
   final Function()? suffixIconPressed;
+  final Color borderColor;
+  final double borderWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,7 @@ class AppTextField extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey.shade300,
         borderRadius: BorderRadius.circular(7.0),
+        border: Border.all(color: borderColor, width: borderWidth),
       ),
       child: Row(
         children: [

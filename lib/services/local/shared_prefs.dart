@@ -20,6 +20,12 @@ class SharedPrefs {
     return maps.map((e) => UserModel.fromJson(e)).toList();
   }
 
+  Future<void> saveUserList(List<UserModel> userList) async {
+    SharedPreferences prefs = await _prefs;
+    List<Map<String, dynamic>> maps = userList.map((e) => e.toJson()).toList();
+    prefs.setString(keyUser, jsonEncode(maps));
+  }
+
   Future<bool> getIsLogin() async {
     SharedPreferences prefs = await _prefs;
     return prefs.getBool('isLogin') ?? false;

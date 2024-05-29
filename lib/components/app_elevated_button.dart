@@ -7,8 +7,8 @@ class AppElevatedButton extends StatelessWidget {
     this.height = 48.0,
     required this.text,
     this.textColor = Colors.white,
-    this.color = Colors.red,
-    this.borderColor = Colors.red,
+    this.color = Colors.blue,
+    this.borderColor = Colors.blue,
   });
 
   final Function()? onPressed;
