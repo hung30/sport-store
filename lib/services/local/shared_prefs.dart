@@ -12,7 +12,6 @@ class SharedPrefs {
     SharedPreferences prefs = await _prefs;
     String? data = prefs.getString(keyUser);
     if (data == null) return null;
-    print('object $data');
 
     List<dynamic> jsonData = jsonDecode(data);
     List<Map<String, dynamic>> maps = jsonData.cast<Map<String, dynamic>>();
@@ -24,6 +23,34 @@ class SharedPrefs {
     SharedPreferences prefs = await _prefs;
     List<Map<String, dynamic>> maps = userList.map((e) => e.toJson()).toList();
     prefs.setString(keyUser, jsonEncode(maps));
+  }
+
+  Future<bool> updateUserPassword(String id, String newPassword) async {
+    SharedPreferences prefs = await _prefs;
+    String? data = prefs.getString(keyUser);
+    if (data == null) return false;
+
+    List<dynamic> jsonData = jsonDecode(data);
+    List<Map<String, dynamic>> maps = jsonData.cast<Map<String, dynamic>>();
+    List<UserModel> usersList = maps.map((e) => UserModel.fromJson(e)).toList();
+
+    bool userFound = false;
+    for (UserModel user in usersList) {
+      if (user.id == id) {
+        user.password = newPassword;
+        userFound = true;
+        break;
+      }
+    }
+
+    if (!userFound) return false;
+
+    List<Map<String, dynamic>> updatedMaps =
+        usersList.map((e) => e.toJson()).toList();
+    String updatedData = jsonEncode(updatedMaps);
+    await prefs.setString(keyUser, updatedData);
+
+    return true;
   }
 
   Future<bool> getIsLogin() async {

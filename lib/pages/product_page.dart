@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductPage extends StatelessWidget {
-  const ProductPage({Key? key}) : super(key: key);
+  const ProductPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +52,41 @@ class _ProductListState extends State<ProductList> {
 
   Future<void> _loadProducts() async {
     final String productsJson = _prefs.getString('products') ?? '[]';
+    final List<Map<String, dynamic>> storedProducts =
+        json.decode(productsJson).cast<Map<String, dynamic>>();
+    if (storedProducts.isEmpty) {
+      _products = [
+        {
+          'name': 'Áo Mancity',
+          'image':
+              'https://aobongda24h.com/pic/product/ao-manche_636860226811393488_HasThumb.jpg',
+          'price': '150.000đ',
+        },
+        {
+          'name': 'Áo M.United',
+          'image':
+              'https://assets.adidas.com/images/w_600,f_auto,q_auto/fe0ce38456ab4ad2871bafc400cca89d_9366/Ao_DJau_San_Nha_Manchester_United_23-24_Tre_Em_DJo_IP1736_01_laydown.jpg',
+          'price': '200.000đ',
+        },
+        {
+          'name': 'Áo Arsenal',
+          'image':
+              'https://product.hstatic.net/1000061481/product/f7d25c3ba4e2435cbb0cea04de9a6af5_7d78e07ac6714a729fc8eaa1d4ad0978_grande.jpeg',
+          'price': '250.000đ',
+        },
+        {
+          'name': 'Áo Real',
+          'image':
+              'https://product.hstatic.net/1000061481/product/8fa18df924ce45fb8a226a0774af6532_4ea012f3b20d4218b060519fb23550b6_1024x1024.jpeg',
+          'price': '320.000đ',
+        },
+      ];
+      await _prefs.setString('products', json.encode(_products));
+    } else {
+      _products = storedProducts;
+    }
     setState(() {
-      _products = json.decode(productsJson).cast<Map<String, dynamic>>();
+      _displayedProducts = List.from(_products);
     });
   }
 
@@ -83,7 +116,7 @@ class _ProductListState extends State<ProductList> {
       } else {
         // Hiển thị thông báo lỗi URL ảnh không hợp lệ
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
                 'Invalid image URL. Please enter a valid image URL ending with .jpg, .png, etc.'),
             duration: Duration(seconds: 2),
@@ -108,6 +141,7 @@ class _ProductListState extends State<ProductList> {
     if (_userCanEdit) {
       setState(() {
         _products.removeAt(index);
+        _displayedProducts.removeAt(index); // Update displayed products
       });
       await _prefs.setString('products', json.encode(_products));
     } else {
@@ -121,6 +155,7 @@ class _ProductListState extends State<ProductList> {
     if (_userCanEdit) {
       setState(() {
         _products[index] = updatedProduct;
+        _displayedProducts[index] = updatedProduct; // Update displayed products
       });
       await _prefs.setString('products', json.encode(_products));
     } else {
@@ -166,7 +201,7 @@ class _ProductListState extends State<ProductList> {
     await _prefs.setString('cart', json.encode(cart));
     // Hiển thị thông báo
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Product added to cart'),
         duration: Duration(seconds: 1),
       ),
@@ -178,23 +213,23 @@ class _ProductListState extends State<ProductList> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     List<Widget> rows = [];
-    for (int i = 0; i < _products.length; i += 2) {
+    for (int i = 0; i < _displayedProducts.length; i += 2) {
       Widget row;
-      if (i + 1 < _products.length) {
+      if (i + 1 < _displayedProducts.length) {
         row = Row(
           children: [
             Expanded(
               child: ProductCard(
-                product: _products[i],
+                product: _displayedProducts[i],
                 onDelete: () => _deleteProduct(i),
                 onUpdate: (updatedProduct) => _updateProduct(i, updatedProduct),
                 userCanEdit: _userCanEdit,
               ),
             ),
-            SizedBox(width: 8), // Add spacing between products
+            const SizedBox(width: 8), // Add spacing between products
             Expanded(
               child: ProductCard(
-                product: _products[i + 1],
+                product: _displayedProducts[i + 1],
                 onDelete: () => _deleteProduct(i + 1),
                 onUpdate: (updatedProduct) =>
                     _updateProduct(i + 1, updatedProduct),
@@ -208,7 +243,7 @@ class _ProductListState extends State<ProductList> {
           children: [
             Expanded(
               child: ProductCard(
-                product: _products[i],
+                product: _displayedProducts[i],
                 onDelete: () => _deleteProduct(i),
                 onUpdate: (updatedProduct) => _updateProduct(i, updatedProduct),
                 userCanEdit: _userCanEdit,
@@ -235,15 +270,15 @@ class _ProductListState extends State<ProductList> {
                     children: [
                       TextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(labelText: 'Name'),
+                        decoration: const InputDecoration(labelText: 'Name'),
                       ),
                       TextFormField(
                         controller: _imageController,
-                        decoration: InputDecoration(labelText: 'Image'),
+                        decoration: const InputDecoration(labelText: 'Image'),
                       ),
                       TextFormField(
                         controller: _priceController,
-                        decoration: InputDecoration(labelText: 'Price'),
+                        decoration: const InputDecoration(labelText: 'Price'),
                       ),
                       ElevatedButton(
                         onPressed: _addProduct,
@@ -263,6 +298,17 @@ class _ProductListState extends State<ProductList> {
             ),
           ),
         ],
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextFormField(
+            controller: _searchController,
+            decoration: const InputDecoration(
+              labelText: 'Search',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: _searchProduct,
+          ),
+        ),
         Expanded(
           child: ListView(
             children: rows,
@@ -280,12 +326,12 @@ class ProductCard extends StatelessWidget {
   final bool userCanEdit;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.product,
     required this.onDelete,
     required this.onUpdate,
     required this.userCanEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -293,9 +339,9 @@ class ProductCard extends StatelessWidget {
       elevation: 0, // Remove default elevation
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10), // Add border radius
-        side: BorderSide(color: Colors.black), // Add black border
+        side: const BorderSide(color: Colors.black), // Add black border
       ),
-      margin: EdgeInsets.all(10), // Add padding around the card
+      margin: const EdgeInsets.all(10), // Add padding around the card
       child: Padding(
         padding: const EdgeInsets.all(10), // Add padding inside the card
         child: Column(
@@ -309,7 +355,7 @@ class ProductCard extends StatelessWidget {
               placeholder: (context, url) => const CircularProgressIndicator(),
               errorWidget: (context, url, error) {
                 print('Failed to load image: $error');
-                return Icon(Icons.error);
+                return const Icon(Icons.error);
               },
             ),
             Text(
@@ -322,28 +368,33 @@ class ProductCard extends StatelessWidget {
             ),
             if (userCanEdit)
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton(
-                    onPressed: onDelete,
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onDelete,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0),
+                        ),
                       ),
+                      child: const Icon(Icons.delete),
                     ),
-                    child: const Text('Delete'),
                   ),
                   const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => _showUpdateDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => {_showUpdateDialog(context)},
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0),
+                        ),
                       ),
+                      child: const Icon(Icons.edit),
                     ),
-                    child: const Text('Update'),
                   ),
                 ],
               ),
@@ -385,21 +436,21 @@ class ProductCard extends StatelessWidget {
             TextEditingController(text: product['price']);
 
         return AlertDialog(
-          title: Text('Update Product'),
+          title: const Text('Update Product'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextField(
                 controller: imageController,
-                decoration: InputDecoration(labelText: 'Image'),
+                decoration: const InputDecoration(labelText: 'Image'),
               ),
               TextField(
                 controller: priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(labelText: 'Price'),
               ),
             ],
           ),
@@ -413,11 +464,11 @@ class ProductCard extends StatelessWidget {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Update'),
+              child: const Text('Update'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
