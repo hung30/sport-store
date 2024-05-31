@@ -7,21 +7,22 @@ import 'package:ck/services/local/shared_prefs.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({super.key, this.username});
 
+  final String? username;
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordConfirmController = TextEditingController();
   Color _suffixIconColor = Colors.grey;
   bool _isPassword = true;
   Icon _suffixIcon = const Icon(Icons.remove_red_eye);
   Color _borderColor = Colors.grey;
-  Color _usernameBorderColor = Colors.grey;
   var _borderWidth = 0.0;
-  var _usernameBorderWidth = 0.0;
   var _errorMessage = "";
   SharedPrefs prefs = SharedPrefs();
   List<UserModel> userLists = [];
@@ -49,36 +50,15 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {});
   }
 
-  Future<void> _registerHandle() async {
-    _usernameBorderColor = Colors.grey;
-    _usernameBorderWidth = 0.0;
+  Future<void> _changePasswordHandle() async {
     _borderColor = Colors.grey;
     _borderWidth = 0.0;
     _errorMessage = "";
     setState(() {});
-    final username = usernameController.text;
-    final password = passwordController.text;
-    final passwordConfirm = passwordConfirmController.text;
-    if (username.isEmpty || password.isEmpty || passwordConfirm.isEmpty) {
-      const snackBar = SnackBar(content: Text("All fields are required"));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return;
-    }
+    final newPassword = passwordController.text;
+    final newPasswordConfirm = passwordConfirmController.text;
 
-    final checkUsername = userLists.firstWhere(
-      (user) => user.username == username,
-      orElse: () => UserModel(id: '', username: '', password: ''),
-    );
-
-    if ((checkUsername.username ?? "").isNotEmpty) {
-      _usernameBorderColor = Colors.red;
-      _usernameBorderWidth = 1.0;
-      _errorMessage = "Username already exists";
-      setState(() {});
-      return;
-    }
-
-    if (password.isEmpty) {
+    if (newPassword.isEmpty) {
       _borderColor = Colors.red;
       _borderWidth = 1.0;
       _errorMessage = "password is required";
@@ -86,7 +66,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (password.length < 6) {
+    if (newPassword.length < 6) {
       _borderColor = Colors.red;
       _borderWidth = 1.0;
       _errorMessage = "password length must be greater than 6";
@@ -94,34 +74,35 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (password == passwordConfirm) {
-      final user = UserModel(
-          id: '${DateTime.now().microsecondsSinceEpoch}',
-          username: username,
-          password: password);
-      userLists.add(user);
-      prefs.saveUserList(userLists);
-      setState(() {});
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginPage(
-            username: username,
-          ),
-        ),
-      );
-    } else {
+    if (newPassword != newPasswordConfirm) {
       _borderColor = Colors.red;
       _borderWidth = 1.0;
-      _errorMessage = "Password does not match";
+      _errorMessage = "password not match";
       setState(() {});
+      return;
+    }
+
+    final checkUsername = userLists.firstWhere(
+      (user) => user.username == widget.username,
+      orElse: () => UserModel(id: '', username: '', password: ''),
+    );
+    bool updatedPassword =
+        await prefs.updateUserPassword(checkUsername.id, newPassword);
+    if (mounted) {
+      if (updatedPassword) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LoginPage(
+                      username: widget.username,
+                    )));
+      } else {
+        const snackBar = SnackBar(content: Text("Failed to update password"));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController passwordConfirmController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -137,26 +118,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 const Padding(
                   padding: EdgeInsets.only(top: 70.0),
                   child: Text(
-                    "Register",
+                    "Change Password",
                     style: TextStyle(color: Colors.blue, fontSize: 25.0),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const Text("Create your new account",
-                    style: TextStyle(color: Colors.grey, fontSize: 20.0),
+                Text("${widget.username} you can change your new password here",
+                    style: const TextStyle(color: Colors.grey, fontSize: 20.0),
                     textAlign: TextAlign.center),
                 const SizedBox(
                   height: 40.0,
-                ),
-                AppTextField(
-                  controller: usernameController,
-                  hinText: "Username",
-                  borderWidth: _usernameBorderWidth,
-                  borderColor: _usernameBorderColor,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(
-                  height: 20.0,
                 ),
                 AppTextField(
                   controller: passwordController,
@@ -198,15 +169,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 50.0,
                 ),
                 AppElevatedButton(
-                  text: "Sign up",
-                  onPressed: () => _registerHandle(),
+                  text: "Change password",
+                  onPressed: _changePasswordHandle,
                 ),
                 const SizedBox(
                   height: 20.0,
                 ),
                 RichText(
                   text: TextSpan(
-                      text: "Already an account?, ",
+                      text: "Remember your password account?, ",
                       style:
                           const TextStyle(color: Colors.grey, fontSize: 16.0),
                       children: <TextSpan>[
@@ -218,8 +189,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ..onTap = () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginPage()))),
+                                      builder: (context) => LoginPage(
+                                            username: widget.username,
+                                          )))),
                       ]),
                   textAlign: TextAlign.center,
                 )
