@@ -1,3 +1,5 @@
+import 'package:ck/components/app_elevated_button.dart';
+import 'package:ck/pages/change_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +30,12 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Page'),
+        backgroundColor: Colors.blue,
+        title: const Text(
+          'User Page',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
       body: Center(
         child: _username != null
@@ -42,8 +49,22 @@ class _UserPageState extends State<UserPage> {
                   Text(
                     _username!,
                     style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                        color: Colors.red,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 16.0),
+                  FractionallySizedBox(
+                      widthFactor: 0.6,
+                      child: AppElevatedButton(
+                        text: "Change Password",
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChangePasswordPage(
+                                      username: _username,
+                                    ))),
+                      )),
                 ],
               )
             : const CircularProgressIndicator(),

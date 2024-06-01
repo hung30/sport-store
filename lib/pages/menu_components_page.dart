@@ -9,14 +9,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() => runApp(const MenuComponentsPage());
 
 class MenuComponentsPage extends StatelessWidget {
-  const MenuComponentsPage({super.key});
+  const MenuComponentsPage({super.key, this.initialPageIndex = 0});
+
+  final int initialPageIndex;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: const NavigationExample(),
+      home: NavigationExample(
+        initialPageIndex: initialPageIndex,
+      ),
     );
   }
 }
@@ -42,14 +46,22 @@ Future<void> _logout(BuildContext context) async {
 ValueNotifier<int> cartQuantityNotifier = ValueNotifier<int>(0);
 
 class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key});
+  const NavigationExample({super.key, this.initialPageIndex = 0});
+  final int initialPageIndex;
 
   @override
   State<NavigationExample> createState() => _NavigationExampleState();
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
-  int currentPageIndex = 0;
+  late int currentPageIndex;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    currentPageIndex = widget.initialPageIndex;
+  }
 
   @override
   Widget build(BuildContext context) {

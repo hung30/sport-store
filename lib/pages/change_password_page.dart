@@ -8,9 +8,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key, this.username});
+  const ChangePasswordPage(
+      {super.key, this.username, this.isForgotPassword = false});
 
   final String? username;
+  final bool isForgotPassword;
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
@@ -90,12 +92,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         await prefs.updateUserPassword(checkUsername.id, newPassword);
     if (mounted) {
       if (updatedPassword) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LoginPage(
-                      username: widget.username,
-                    )));
+        if (widget.isForgotPassword) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => LoginPage(
+                        username: widget.username,
+                      )));
+        } else {
+          Navigator.pop(context);
+        }
       } else {
         const snackBar = SnackBar(content: Text("Failed to update password"));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -175,26 +181,42 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 const SizedBox(
                   height: 20.0,
                 ),
-                RichText(
-                  text: TextSpan(
-                      text: "Remember your password account?, ",
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 16.0),
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: "Login",
+                widget.isForgotPassword
+                    ? RichText(
+                        text: TextSpan(
+                            text: "Remember your password account?, ",
                             style: const TextStyle(
-                                color: Colors.blue, fontSize: 16.0),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LoginPage(
-                                            username: widget.username,
-                                          )))),
-                      ]),
-                  textAlign: TextAlign.center,
-                )
+                                color: Colors.grey, fontSize: 16.0),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: "Login",
+                                  style: const TextStyle(
+                                      color: Colors.blue, fontSize: 16.0),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => LoginPage(
+                                                  username: widget.username,
+                                                )))),
+                            ]),
+                        textAlign: TextAlign.center,
+                      )
+                    : RichText(
+                        text: TextSpan(
+                            text: "Don't want to change password ?, ",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 16.0),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: "Back",
+                                  style: const TextStyle(
+                                      color: Colors.blue, fontSize: 16.0),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => Navigator.pop(context)),
+                            ]),
+                        textAlign: TextAlign.center,
+                      )
               ],
             ),
           ),

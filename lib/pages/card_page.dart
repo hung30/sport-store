@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ck/pages/menu_components_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,11 +71,42 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
+  Future<void> _buyHandle() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Xóa dữ liệu giỏ hàng
+    await prefs.remove('cart');
+    setState(() {
+      _cart = [];
+      _updateCartQuantity();
+    });
+    if (mounted) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              title: Text(
+                'Cảm ơn',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                'Bạn đã mua hàng thành công!!',
+                textAlign: TextAlign.center,
+              ),
+            );
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cart'),
+        backgroundColor: Colors.blue,
+        title: const Text(
+          'Cart',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -90,28 +122,78 @@ class _CartPageState extends State<CartPage> {
                     border: Border.all(color: Colors.orange),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: ListTile(
-                    leading: Image.network(product['image']!),
-                    title: Text(product['name']!),
-                    subtitle: Text('Price: ${product['price']}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () => _removeItem(index),
-                          icon: const Icon(Icons.remove),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: CachedNetworkImage(
+                          imageUrl: product['image']!,
+                          height: 110.0,
+                          width: 110.0,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) {
+                            print('Failed to load image: $error');
+                            return const Icon(Icons.error);
+                          },
                         ),
-                        Text('Qty: ${product['quantity']}'),
-                        IconButton(
-                          onPressed: () => _addItem(index),
-                          icon: const Icon(Icons.add),
+                      ),
+                      Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.only(left: 3.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 18.0),
+                              child: Text(
+                                product['name']!,
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            const SizedBox(height: 15.0),
+                            Padding(
+                                padding: const EdgeInsets.only(left: 18.0),
+                                child: Text('Giá: ${product['price']}',
+                                    style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 14.0,
+                                    ))),
+                            const SizedBox(height: 8.0),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () => _addItem(index),
+                                  icon: const Icon(Icons.add),
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  product['quantity'].toString(),
+                                  style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                IconButton(
+                                  onPressed: () => _removeItem(index),
+                                  icon: const Icon(Icons.remove),
+                                  color: Colors.orange,
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () => _removeItem(index),
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.pink,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          onPressed: () => _removeItem(index),
-                          icon: const Icon(Icons.delete),
-                        ),
-                      ],
-                    ),
+                      ))
+                    ],
                   ),
                 );
               },
@@ -120,21 +202,23 @@ class _CartPageState extends State<CartPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              color: Colors.black,
               padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Total Price: ${getTotalPrice().toStringAsFixed(3)} đ',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
                   ),
                   Text(
                     'Total Quantity: ${getTotalQuantity()}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
@@ -143,24 +227,23 @@ class _CartPageState extends State<CartPage> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          FractionallySizedBox(
+            widthFactor: 0.4,
             child: ElevatedButton(
-              onPressed: () {
-                // Xử lý logic mua hàng tại đây
-              },
+              onPressed: _buyHandle,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.blue, // Màu chữ của nút
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
-              child: Text('Mua Hàng', style: TextStyle(fontSize: 18)),
+              child: const Text('Mua Hàng', style: TextStyle(fontSize: 16.0)),
             ),
           ),
+          const SizedBox(height: 10.0),
         ],
       ),
     );

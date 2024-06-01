@@ -17,45 +17,55 @@ class ProductDetailPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Image.network(
-                product['image'],
-                height: 200,
-                width: 200,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              product['name'],
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Price: ${product['price']}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Add to cart functionality
-                _addToCart(product, context);
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Color.fromARGB(255, 6, 0, 0),
-                backgroundColor:
-                    Color.fromARGB(255, 54, 124, 244), // Text color
-                elevation: 0, // Remove shadow
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0), // No border radius
+        child: Padding(
+          padding: const EdgeInsets.only(top: 70.0),
+          child: Column(
+            children: [
+              Center(
+                child: Image.network(
+                  product['image'],
+                  height: 200,
+                  width: 200,
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: Text('Add to Cart'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                product['name'],
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Giá: ${product['price']}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Add to cart functionality
+                  _addToCart(product, context);
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Color.fromARGB(255, 6, 0, 0),
+                  backgroundColor:
+                      const Color.fromARGB(255, 54, 124, 244), // Text color
+                  elevation: 0, // Remove shadow
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // No border radius
+                  ),
+                ),
+                child: const Text(
+                  'Add to Cart',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
