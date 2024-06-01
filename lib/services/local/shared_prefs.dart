@@ -36,6 +36,7 @@ class SharedPrefs {
 
     bool userFound = false;
     for (UserModel user in usersList) {
+      print(user);
       if (user.id == id) {
         user.password = newPassword;
         userFound = true;
@@ -71,5 +72,10 @@ class SharedPrefs {
   Future<void> setLoginUsername(String value) async {
     SharedPreferences prefs = await _prefs;
     await prefs.setString('username', value);
+  }
+
+  Future<String> getKeyUser() async {
+    SharedPreferences prefs = await _prefs;
+    return prefs.getString('keyUser') ?? '';
   }
 }

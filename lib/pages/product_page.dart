@@ -14,7 +14,12 @@ class ProductPage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Product Page'),
+          backgroundColor: Colors.blue,
+          title: const Text(
+            'Product Page',
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
         ),
         body: ProductList(),
       ),
@@ -280,16 +285,17 @@ class _ProductListState extends State<ProductList> {
                         controller: _priceController,
                         decoration: const InputDecoration(labelText: 'Price'),
                       ),
+                      const SizedBox(height: 16.0),
                       ElevatedButton(
                         onPressed: _addProduct,
                         style: ElevatedButton.styleFrom(
                           elevation: 0, // Remove shadow
                           shape: RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.circular(0), // No border radius
+                                BorderRadius.circular(10.0), // No border radius
                           ),
                         ),
-                        child: Text('Add Product'),
+                        child: const Text('Add Product'),
                       ),
                     ],
                   ),

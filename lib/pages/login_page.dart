@@ -5,6 +5,7 @@ import 'package:ck/models/user_model.dart';
 import 'package:ck/pages/forgot_password_page.dart';
 import 'package:ck/pages/menu_components_page.dart';
 import 'package:ck/pages/register_page.dart';
+import 'package:ck/pages/splash_screen.dart';
 import 'package:ck/services/local/shared_prefs.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,11 @@ class _LoginPageState extends State<LoginPage> {
     if (widget.username != null) {
       usernameController.text = widget.username!;
     }
+    prefs.getKeyUser().then((value) {
+      if (value == '') {
+        prefs.saveUserList(userList);
+      }
+    });
   }
 
   void _getUserList() {
@@ -51,21 +57,17 @@ class _LoginPageState extends State<LoginPage> {
       (user) => user.username == username && user.password == password,
       orElse: () => UserModel(id: '', username: '', password: ''),
     );
-    if ((user.username ?? "").isNotEmpty) {
+    if (user.username.isNotEmpty) {
       await prefs.setIsLogin(true);
       await prefs.setLoginUsername(username);
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => HomePage(username: user.username ?? ''),
-      //   ),
-      // );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MenuComponentsPage(),
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MenuComponentsPage(),
+          ),
+        );
+      }
     } else {
       _showErrorMessage("Tài khoản hoặc mật khẩu không đúng");
     }
@@ -100,7 +102,14 @@ class _LoginPageState extends State<LoginPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: MyAppBar(onPressed: () => Navigator.pop(context)),
+        appBar: MyAppBar(onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const Splash()));
+          }
+        }),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),

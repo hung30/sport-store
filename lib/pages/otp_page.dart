@@ -130,6 +130,7 @@ class _OtpPageState extends State<OtpPage> {
                           MaterialPageRoute(
                               builder: (context) => ChangePasswordPage(
                                     username: widget.username,
+                                    isForgotPassword: true,
                                   )));
                     } else {
                       const snackBar = SnackBar(
